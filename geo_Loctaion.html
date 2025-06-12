@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Camera + Location Capture</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #e0f7fa, #f9fbe7);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 30px;
+    }
+
+    h2 {
+      color: #2e7d32;
+    }
+
+    button {
+      padding: 12px 20px;
+      margin: 10px;
+      border: none;
+      background-color: #43a047;
+      color: white;
+      font-size: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background-color: #2e7d32;
+    }
+
+    #location, #status {
+      margin: 15px 0;
+      font-size: 16px;
+      font-weight: bold;
+      color: #33691e;
+    }
+
+    video, canvas {
+      width: 320px;
+      height: auto;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0, 100, 0, 0.2);
+      margin: 10px 0;
+    }
+
+    .box {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.1);
+      padding: 20px;
+      max-width: 400px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+<div class="box">
+  <h2>📍 Camera with Location Validation</h2>
+
+  <button onclick="getLocation()">1️⃣ Get Current Location</button>
+  <p id="location">Location not yet fetched.</p>
+
+  <video id="video" autoplay playsinline></video><br>
+  <button onclick="capturePhoto()">2️⃣ Capture Photo</button>
+
+  <canvas id="canvas"></canvas>
+  <p id="status"></p>
+</div>
+
+<script>
+let latitude = null;
+let longitude = null;
+
+// Step 1: Get Location
+function getLocation() {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        latitude = position.coords.latitude;
+        longitude = position.coords.longitude;
+        document.getElementById("location").innerText =
+          `✅ Location fetched: Latitude ${latitude.toFixed(5)}, Longitude ${longitude.toFixed(5)}`;
+      },
+      (error) => {
+        document.getElementById("location").innerText =
+          "❌ Location error: " + error.message;
+      }
+    );
+  } else {
+    alert("Geolocation not supported by this browser.");
+  }
+}
+
+// Step 2: Access Camera
+const video = document.getElementById("video");
+
+navigator.mediaDevices.getUserMedia({ video: true })
+  .then((stream) => {
+    video.srcObject = stream;
+  })
+  .catch((err) => {
+    alert("Camera error: " + err.message);
+  });
+
+// Step 3: Capture Photo only if Location is Available
+function capturePhoto() {
+  if (!latitude || !longitude) {
+    alert("⚠️ Please allow location access and fetch it first.");
+    return;
+  }
+
+  const canvas = document.getElementById("canvas");
+  const ctx = canvas.getContext("2d");
+
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+
+  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+  document.getElementById("status").innerText =
+    "✅ Photo captured successfully with location!";
+}
+</script>
+
+</body>
+</html>
