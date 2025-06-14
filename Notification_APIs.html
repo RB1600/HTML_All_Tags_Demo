@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>⏰ Reminder Notifier</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #e8f5e9;
+      padding: 30px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    h2 {
+      color: #2e7d32;
+      margin-bottom: 20px;
+    }
+
+    .box {
+      background: white;
+      padding: 20px 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+      width: 350px;
+      text-align: center;
+    }
+
+    input, button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 10px;
+      font-size: 16px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      background-color: #43a047;
+      color: white;
+      border: none;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background-color: #2e7d32;
+    }
+
+    #status {
+      margin-top: 15px;
+      font-weight: bold;
+      color: #33691e;
+    }
+  </style>
+</head>
+<body>
+
+<div class="box">
+  <h2>⏰ Reminder Notifier</h2>
+
+  <input type="text" id="message" placeholder="Enter your reminder..." />
+  <input type="number" id="delay" placeholder="Delay in seconds" />
+
+  <button onclick="setReminder()">Set Reminder</button>
+
+  <p id="status"></p>
+</div>
+
+<script>
+function setReminder() {
+  const msg = document.getElementById("message").value.trim();
+  const delay = parseInt(document.getElementById("delay").value) * 1000;
+
+  if (!msg || isNaN(delay)) {
+    document.getElementById("status").innerText = "⚠️ Please enter valid data.";
+    return;
+  }
+
+  if (Notification.permission !== "granted") {
+    Notification.requestPermission().then(permission => {
+      if (permission === "granted") {
+        startReminder(msg, delay);
+      } else {
+        alert("You must allow notifications to use this feature.");
+      }
+    });
+  } else {
+    startReminder(msg, delay);
+  }
+}
+
+function startReminder(message, delay) {
+  document.getElementById("status").innerText = `✅ Reminder set for ${delay / 1000} seconds...`;
+
+  setTimeout(() => {
+    new Notification("⏰ Reminder", {
+      body: message,
+      icon: "https://cdn-icons-png.flaticon.com/512/2097/2097078.png"
+    });
+    document.getElementById("status").innerText = "🎉 Reminder shown!";
+  }, delay);
+}
+</script>
+
+</body>
+</html>

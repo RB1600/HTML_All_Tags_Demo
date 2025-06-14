@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Geolocation Example</title>
+  <style>
+    body {
+      font-family: Arial;
+      padding: 20px;
+    }
+    #location {
+      margin-top: 20px;
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>📍 Get & Watch My Location</h2>
+  <button onclick="getLocation()">Start Location Tracking</button>
+  <div id="location">Waiting for location...</div>
+
+  <script>
+    let watchId;
+
+    function getLocation() {
+      const locationDiv = document.getElementById("location");
+
+      if (!navigator.geolocation) {
+        locationDiv.innerText = "Geolocation is not supported by your browser.";
+        return;
+      }
+
+      // Get current location once
+      navigator.geolocation.getCurrentPosition(showLocation, errorHandler);
+
+      // Start watching location
+      watchId = navigator.geolocation.watchPosition(
+        showLocation,
+        errorHandler,
+        {
+          enableHighAccuracy: true,
+          timeout: 5000,
+          maximumAge: 0
+        }
+      );
+
+      // Stop watching after 10 seconds
+      setTimeout(() => {
+        navigator.geolocation.clearWatch(watchId);
+        locationDiv.innerHTML += "<br>⏹️ Stopped watching location.";
+      }, 10000); // 10 seconds
+    }
+
+    function showLocation(position) {
+      const { latitude, longitude } = position.coords;
+      document.getElementById("location").innerHTML = `
+        🌍 Latitude: ${latitude.toFixed(6)}<br>
+        🌐 Longitude: ${longitude.toFixed(6)}<br>
+        ⏱️ Time: ${new Date().toLocaleTimeString()}
+      `;
+    }
+
+    function errorHandler(error) {
+      document.getElementById("location").innerText =
+        "Error getting location: " + error.message;
+    }
+  </script>
+
+</body>
+</html>
