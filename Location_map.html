@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Geolocation with Map</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+    }
+
+    #map {
+      height: 500px;
+      width: 90%;
+      margin: 20px auto;
+      border: 2px solid #444;
+      border-radius: 10px;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h2>🌐 Geolocation API with Map</h2>
+  <p>Click the button below to get your location and display it on the map.</p>
+  <button onclick="getLocation()">📍 Show My Location</button>
+  <p id="status"></p>
+
+  <div id="map"></div>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+  <script>
+    let map;
+    let marker;
+
+    function getLocation() {
+      const status = document.getElementById("status");
+
+      if (navigator.geolocation) {
+        status.textContent = "Getting your location...";
+
+        navigator.geolocation.getCurrentPosition(showMap, showError, {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0
+        });
+      } else {
+        status.textContent = "Geolocation is not supported by your browser.";
+      }
+    }
+
+    function showMap(position) {
+      const lat = position.coords.latitude;
+      const lon = position.coords.longitude;
+      const status = document.getElementById("status");
+      status.innerHTML = `✅ Location Found!<br>Latitude: ${lat}<br>Longitude: ${lon}`;
+
+      // If map already initialized
+      if (map) {
+        map.setView([lat, lon], 15);
+        marker.setLatLng([lat, lon]);
+        return;
+      }
+
+      // Initialize map
+      map = L.map('map').setView([lat, lon], 15);
+
+      // Add OpenStreetMap tiles
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+      }).addTo(map);
+
+      // Add marker
+      marker = L.marker([lat, lon]).addTo(map)
+        .bindPopup("📍 You are here!")
+        .openPopup();
+    }
+
+    function showError(error) {
+      const status = document.getElementById("status");
+      switch(error.code) {
+        case error.PERMISSION_DENIED:
+          status.textContent = "❌ User denied the request for Geolocation.";
+          break;
+        case error.POSITION_UNAVAILABLE:
+          status.textContent = "❌ Location information is unavailable.";
+          break;
+        case error.TIMEOUT:
+          status.textContent = "❌ The request to get user location timed out.";
+          break;
+        default:
+          status.textContent = "❌ An unknown error occurred.";
+      }
+    }
+  </script>
+
+</body>
+</html>
